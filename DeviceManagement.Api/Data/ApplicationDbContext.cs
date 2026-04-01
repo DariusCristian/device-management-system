@@ -13,4 +13,15 @@ public class ApplicationDbContext : DbContext
     
     public DbSet<Device> Devices=> Set<Device>();
     public DbSet<User> Users => Set<User>();
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Device>()
+            .HasOne(d => d.AssignedUser)
+            .WithMany(u => u.Devices)
+            .HasForeignKey(d => d.AssignedUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+    }
 }
