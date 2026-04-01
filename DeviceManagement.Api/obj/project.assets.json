@@ -4560,7 +4560,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.419/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/Users/dariushoratau/.dotnet/sdk/8.0.419/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -1,7 +1,7 @@
-using DevineManagement.Api.Models;
+using DeviceManagement.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DevineManagement.Api.Data;
+namespace DeviceManagement.Api.Data;
 
 
 public class ApplicationDbContext : DbContext

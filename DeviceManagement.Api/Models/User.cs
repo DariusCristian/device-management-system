@@ -1,4 +1,4 @@
-namespace DevineManagement.Api.Models;
+namespace DeviceManagement.Api.Models;
 
 public class User
 {
