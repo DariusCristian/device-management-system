@@ -16,6 +16,7 @@ export class DeviceList implements OnInit {
   devices: Device[] = [];
   isLoading = false;
   errorMessage = '';
+  selectedDevice: Device | null = null;
 
   ngOnInit(): void {
     this.loadDevices();
@@ -44,5 +45,9 @@ export class DeviceList implements OnInit {
           this.cdr.detectChanges();
         }
       });
+
+  }
+  selectDevice(device: Device): void {
+    this.selectedDevice = device;
   }
 }

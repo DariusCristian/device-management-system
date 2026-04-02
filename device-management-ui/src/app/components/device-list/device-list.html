@@ -26,7 +26,7 @@
     </thead>
     <tbody>
       @for (device of devices; track device.id) {
-        <tr>
+        <tr (click)="selectDevice(device)">
           <td>{{ device.name }}</td>
           <td>{{ device.manufacturer }}</td>
           <td>{{ device.type }}</td>
@@ -37,4 +37,18 @@
       }
     </tbody>
   </table>
+  @if (selectedDevice) {
+    <div class="device-details">
+      <h3>Device Details</h3>
+      <p><strong>Name:</strong> {{ selectedDevice.name }}</p>
+      <p><strong>Manufacturer:</strong> {{ selectedDevice.manufacturer }}</p>
+      <p><strong>Type:</strong> {{ selectedDevice.type }}</p>
+      <p><strong>Operating System:</strong> {{ selectedDevice.operatingSystem }}</p>
+      <p><strong>OS Version:</strong> {{ selectedDevice.osVersion }}</p>
+      <p><strong>Processor:</strong> {{ selectedDevice.processor }}</p>
+      <p><strong>RAM:</strong> {{ selectedDevice.ramAmount }} GB</p>
+      <p><strong>Description:</strong> {{ selectedDevice.description }}</p>
+      <p><strong>Assigned User Id:</strong> {{ selectedDevice.assignedUserId ?? '-' }}</p>
+    </div>
+  }
 }

@@ -31,3 +31,22 @@ tr:nth-child(even) {
 p {
   margin-top: 1rem;
 }
+
+tr {
+  cursor: pointer;
+}
+
+tr:hover {
+  background-color: #eef6ff;
+}
+
+.device-details {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #dcdcdc;
+  background-color: #f9f9f9;
+}
+
+.device-details h3 {
+  margin-top: 0;
+}
