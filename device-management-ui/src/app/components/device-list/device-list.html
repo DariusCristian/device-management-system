@@ -1,0 +1,40 @@
+<h2>Devices</h2>
+
+@if (isLoading) {
+  <p>Loading devices...</p>
+}
+
+@if (errorMessage) {
+  <p>{{ errorMessage }}</p>
+}
+
+@if (!isLoading && !errorMessage && devices.length === 0) {
+  <p>No devices found.</p>
+}
+
+@if (!isLoading && devices.length > 0) {
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Manufacturer</th>
+        <th>Type</th>
+        <th>Operating System</th>
+        <th>RAM</th>
+        <th>Assigned User Id</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (device of devices; track device.id) {
+        <tr>
+          <td>{{ device.name }}</td>
+          <td>{{ device.manufacturer }}</td>
+          <td>{{ device.type }}</td>
+          <td>{{ device.operatingSystem }} {{ device.osVersion }}</td>
+          <td>{{ device.ramAmount }} GB</td>
+          <td>{{ device.assignedUserId ?? '-' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
