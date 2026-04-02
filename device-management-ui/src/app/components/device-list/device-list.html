@@ -42,7 +42,7 @@
       <th>Type</th>
       <th>Operating System</th>
       <th>RAM</th>
-      <th>Assigned User Id</th>
+      <th>Assigned User</th>
       <th>Actions</th>
     </tr>
     </thead>
@@ -54,7 +54,7 @@
           <td>{{ device.type }}</td>
           <td>{{ device.operatingSystem }} {{ device.osVersion }}</td>
           <td>{{ device.ramAmount }} GB</td>
-          <td>{{ device.assignedUserId ?? '-' }}</td>
+          <td>{{ device.assignedUser ? device.assignedUser.name + ' (ID: ' + device.assignedUser.id + ')' : (device.assignedUserId ? 'User #' + device.assignedUserId : '-') }}</td>
           <td>
             <button type="button" (click)="deleteDevice(device.id); $event.stopPropagation()">
               Delete
@@ -76,7 +76,6 @@
       <p><strong>Processor:</strong> {{ selectedDevice.processor }}</p>
       <p><strong>RAM:</strong> {{ selectedDevice.ramAmount }} GB</p>
       <p><strong>Description:</strong> {{ selectedDevice.description }}</p>
-      <p><strong>Assigned User Id:</strong> {{ selectedDevice.assignedUserId ?? '-' }}</p>
-    </div>
+      <p><strong>Assigned User:</strong> {{ selectedDevice.assignedUser ? selectedDevice.assignedUser.name + ' (ID: ' + selectedDevice.assignedUser.id + ')' : (selectedDevice.assignedUserId ? 'User #' + selectedDevice.assignedUserId : '-') }}</p>    </div>
   }
 }

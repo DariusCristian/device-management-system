@@ -19,14 +19,18 @@ public class DevicesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Device>>> GetAll()
     {
-        var devices = await _context.Devices.ToListAsync();
+        var devices = await _context.Devices
+            .Include(d=>d.AssignedUser)
+            .ToListAsync();
         return Ok(devices);
     }
     
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Device>> GetById(int id)
     {
-        var device = await _context.Devices.FindAsync(id);
+        var device = await _context.Devices
+            .Include(d => d.AssignedUser)
+            .FirstOrDefaultAsync(d => d.Id == id);
 
         if (device == null)
             return NotFound();
@@ -58,7 +62,9 @@ public class DevicesController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<ActionResult> Update(int id, Device updatedDevice)
     {
-        var device = await _context.Devices.FindAsync(id);
+        var device = await _context.Devices
+            .Include(d => d.AssignedUser)
+            .FirstOrDefaultAsync(d => d.Id == id);
 
         if (device == null)
             return NotFound();
@@ -83,7 +89,8 @@ public class DevicesController : ControllerBase
         device.Processor = updatedDevice.Processor;
         device.RamAmount = updatedDevice.RamAmount;
         device.Description = updatedDevice.Description;
-
+        device.AssignedUserId = updatedDevice.AssignedUserId;
+        
         await _context.SaveChangesAsync();
 
         return NoContent();

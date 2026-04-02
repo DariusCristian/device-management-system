@@ -2,6 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface AssignedUser {
+  id: number;
+  name: string;
+  role: string;
+  location: string;
+}
+
 export interface Device {
   id: number;
   name: string;
@@ -13,6 +20,7 @@ export interface Device {
   ramAmount: number;
   description: string;
   assignedUserId?: number | null;
+  assignedUser?: AssignedUser | null;
 }
 
 @Injectable({
