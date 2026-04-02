@@ -1,5 +1,21 @@
 <h2>Devices</h2>
 
+<div class="device-form">
+  <h3>Create Device</h3>
+
+  <input [(ngModel)]="newDevice.name" placeholder="Name" />
+  <input [(ngModel)]="newDevice.manufacturer" placeholder="Manufacturer" />
+  <input [(ngModel)]="newDevice.type" placeholder="Type" />
+  <input [(ngModel)]="newDevice.operatingSystem" placeholder="Operating System" />
+  <input [(ngModel)]="newDevice.osVersion" placeholder="OS Version" />
+  <input [(ngModel)]="newDevice.processor" placeholder="Processor" />
+  <input [(ngModel)]="newDevice.ramAmount" type="number" placeholder="RAM Amount" />
+  <input [(ngModel)]="newDevice.assignedUserId" type="number" placeholder="Assigned User Id" />
+  <textarea [(ngModel)]="newDevice.description" placeholder="Description"></textarea>
+
+  <button (click)="createDevice()">Create Device</button>
+</div>
+
 @if (isLoading) {
   <p>Loading devices...</p>
 }
@@ -15,14 +31,14 @@
 @if (!isLoading && devices.length > 0) {
   <table>
     <thead>
-      <tr>
-        <th>Name</th>
-        <th>Manufacturer</th>
-        <th>Type</th>
-        <th>Operating System</th>
-        <th>RAM</th>
-        <th>Assigned User Id</th>
-      </tr>
+    <tr>
+      <th>Name</th>
+      <th>Manufacturer</th>
+      <th>Type</th>
+      <th>Operating System</th>
+      <th>RAM</th>
+      <th>Assigned User Id</th>
+    </tr>
     </thead>
     <tbody>
       @for (device of devices; track device.id) {
@@ -37,6 +53,7 @@
       }
     </tbody>
   </table>
+
   @if (selectedDevice) {
     <div class="device-details">
       <h3>Device Details</h3>

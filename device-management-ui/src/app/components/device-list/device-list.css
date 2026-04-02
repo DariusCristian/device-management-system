@@ -50,3 +50,29 @@ tr:hover {
 .device-details h3 {
   margin-top: 0;
 }
+
+.device-form {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #dcdcdc;
+  background-color: #f9f9f9;
+}
+
+.device-form input,
+.device-form textarea,
+.device-form button {
+  padding: 0.75rem;
+  font: inherit;
+}
+
+.device-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.device-form button {
+  width: fit-content;
+  cursor: pointer;
+}
