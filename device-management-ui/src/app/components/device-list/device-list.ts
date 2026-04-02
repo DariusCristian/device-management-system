@@ -18,6 +18,7 @@ export class DeviceList implements OnInit {
   isLoading = false;
   errorMessage = '';
   selectedDevice: Device | null = null;
+  isEditMode = false;
 
   newDevice: Device = {
     id: 0,
@@ -63,6 +64,8 @@ export class DeviceList implements OnInit {
 
   selectDevice(device: Device): void {
     this.selectedDevice = device;
+    this.newDevice = { ...device };
+    this.isEditMode = true;
   }
 
   createDevice(): void {
@@ -111,6 +114,80 @@ export class DeviceList implements OnInit {
       error: (error) => {
         console.error('Create device error:', error);
         this.errorMessage = 'Failed to create device.';
+      },
+    });
+  }
+
+  updateDevice(): void {
+    if (
+      !this.newDevice.name.trim() ||
+      !this.newDevice.manufacturer.trim() ||
+      !this.newDevice.type.trim() ||
+      !this.newDevice.operatingSystem.trim() ||
+      !this.newDevice.osVersion.trim() ||
+      !this.newDevice.processor.trim() ||
+      !this.newDevice.description.trim() ||
+      this.newDevice.ramAmount <= 0
+    ) {
+      this.errorMessage = 'All fields are required and RAM must be greater than 0.';
+      return;
+    }
+
+    this.deviceService.updateDevice(this.newDevice.id, this.newDevice).subscribe({
+      next: () => {
+        this.errorMessage = '';
+        this.selectedDevice = null;
+        this.isEditMode = false;
+        this.newDevice = {
+          id: 0,
+          name: '',
+          manufacturer: '',
+          type: '',
+          operatingSystem: '',
+          osVersion: '',
+          processor: '',
+          ramAmount: 0,
+          description: '',
+          assignedUserId: null,
+        };
+        this.loadDevices();
+      },
+      error: (error) => {
+        console.error('Update device error:', error);
+        this.errorMessage = 'Failed to update device.';
+      },
+    });
+  }
+  cancelEdit(): void {
+    this.isEditMode = false;
+    this.selectedDevice = null;
+    this.errorMessage = '';
+    this.newDevice = {
+      id: 0,
+      name: '',
+      manufacturer: '',
+      type: '',
+      operatingSystem: '',
+      osVersion: '',
+      processor: '',
+      ramAmount: 0,
+      description: '',
+      assignedUserId: null,
+    };
+  }
+
+  deleteDevice(id: number): void {
+    this.deviceService.deleteDevice(id).subscribe({
+      next: () => {
+        if (this.selectedDevice?.id === id) {
+          this.cancelEdit();
+        }
+        this.errorMessage = '';
+        this.loadDevices();
+      },
+      error: (error) => {
+        console.error('Delete device error:', error);
+        this.errorMessage = 'Failed to delete device.';
       },
     });
   }

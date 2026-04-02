@@ -1,7 +1,7 @@
 <h2>Devices</h2>
 
 <div class="device-form">
-  <h3>Create Device</h3>
+  <h3>{{ isEditMode ? 'Edit Device' : 'Create Device' }}</h3>
 
   <input [(ngModel)]="newDevice.name" placeholder="Name" />
   <input [(ngModel)]="newDevice.manufacturer" placeholder="Manufacturer" />
@@ -13,7 +13,12 @@
   <input [(ngModel)]="newDevice.assignedUserId" type="number" placeholder="Assigned User Id" />
   <textarea [(ngModel)]="newDevice.description" placeholder="Description"></textarea>
 
-  <button (click)="createDevice()">Create Device</button>
+  <button (click)="isEditMode ? updateDevice() : createDevice()">
+    {{ isEditMode ? 'Update Device' : 'Create Device' }}
+  </button>
+  @if (isEditMode) {
+    <button type="button" (click)="cancelEdit()">Cancel Edit</button>
+  }
 </div>
 
 @if (isLoading) {
@@ -38,6 +43,7 @@
       <th>Operating System</th>
       <th>RAM</th>
       <th>Assigned User Id</th>
+      <th>Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -49,6 +55,11 @@
           <td>{{ device.operatingSystem }} {{ device.osVersion }}</td>
           <td>{{ device.ramAmount }} GB</td>
           <td>{{ device.assignedUserId ?? '-' }}</td>
+          <td>
+            <button type="button" (click)="deleteDevice(device.id); $event.stopPropagation()">
+              Delete
+            </button>
+          </td>
         </tr>
       }
     </tbody>
