@@ -1,4 +1,7 @@
 <h2>Devices</h2>
+@if (currentUser) {
+  <p><strong>Logged in as:</strong> {{ currentUser.name }} (ID: {{ currentUser.id }})</p>
+}
 
 <div class="device-form">
   <h3>{{ isEditMode ? 'Edit Device' : 'Create Device' }}</h3>
@@ -56,10 +59,23 @@
           <td>{{ device.ramAmount }} GB</td>
           <td>{{ device.assignedUser ? device.assignedUser.name + ' (ID: ' + device.assignedUser.id + ')' : (device.assignedUserId ? 'User #' + device.assignedUserId : '-') }}</td>
           <td>
+            @if (canAssignToCurrentUser(device)) {
+              <button type="button" (click)="assignToMe(device); $event.stopPropagation()">
+                Assign to Me
+              </button>
+            }
+
+            @if (isAssignedToCurrentUser(device)) {
+              <button type="button" (click)="unassignFromMe(device); $event.stopPropagation()">
+                Unassign
+              </button>
+            }
+
             <button type="button" (click)="deleteDevice(device.id); $event.stopPropagation()">
               Delete
             </button>
           </td>
+
         </tr>
       }
     </tbody>

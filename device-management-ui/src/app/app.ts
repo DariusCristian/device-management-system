@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { DeviceList } from './components/device-list/device-list';
+import { RouterOutlet, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [DeviceList],
+  imports: [RouterOutlet, RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

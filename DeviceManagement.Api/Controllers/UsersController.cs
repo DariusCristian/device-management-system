@@ -38,7 +38,8 @@ public class UsersController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(user.Name) ||
             string.IsNullOrWhiteSpace(user.Role) ||
-            string.IsNullOrWhiteSpace(user.Location))
+            string.IsNullOrWhiteSpace(user.Location) ||
+            string.IsNullOrWhiteSpace(user.Email))
         {
             return BadRequest("All fields are required.");
         }
@@ -59,7 +60,8 @@ public class UsersController : ControllerBase
 
         if (string.IsNullOrWhiteSpace(updatedUser.Name) ||
             string.IsNullOrWhiteSpace(updatedUser.Role) ||
-            string.IsNullOrWhiteSpace(updatedUser.Location))
+            string.IsNullOrWhiteSpace(updatedUser.Location) ||
+            string.IsNullOrWhiteSpace(updatedUser.Email))
         {
             return BadRequest("All fields are required.");
         }
@@ -67,6 +69,7 @@ public class UsersController : ControllerBase
         user.Name = updatedUser.Name;
         user.Role = updatedUser.Role;
         user.Location = updatedUser.Location;
+        user.Email = updatedUser.Email;
 
         await _context.SaveChangesAsync();
 

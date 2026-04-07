@@ -19,6 +19,7 @@ export class DeviceList implements OnInit {
   errorMessage = '';
   selectedDevice: Device | null = null;
   isEditMode = false;
+  currentUser: any = null;
 
   newDevice: Device = {
     id: 0,
@@ -34,6 +35,14 @@ export class DeviceList implements OnInit {
   };
 
   ngOnInit(): void {
+    const savedUser = localStorage.getItem('currentUser');
+
+    if (!savedUser) {
+      this.errorMessage = 'You must be logged in to access devices.';
+      return;
+    }
+
+    this.currentUser = JSON.parse(savedUser);
     this.loadDevices();
   }
 
@@ -188,6 +197,69 @@ export class DeviceList implements OnInit {
       error: (error) => {
         console.error('Delete device error:', error);
         this.errorMessage = 'Failed to delete device.';
+      },
+    });
+  }
+  isAssignedToCurrentUser(device: Device): boolean {
+    return !!this.currentUser && device.assignedUserId === this.currentUser.id;
+  }
+
+  canAssignToCurrentUser(device: Device): boolean {
+    return !!this.currentUser && !device.assignedUserId;
+  }
+
+  assignToMe(device: Device): void {
+    if (!this.currentUser) {
+      this.errorMessage = 'You must be logged in.';
+      return;
+    }
+
+    if (device.assignedUserId) {
+      this.errorMessage = 'This device is already assigned.';
+      return;
+    }
+
+    const updatedDevice: Device = {
+      ...device,
+      assignedUserId: this.currentUser.id,
+    };
+
+    this.deviceService.updateDevice(device.id, updatedDevice).subscribe({
+      next: () => {
+        this.errorMessage = '';
+        this.loadDevices();
+      },
+      error: (error) => {
+        console.error('Assign device error:', error);
+        this.errorMessage = 'Failed to assign device.';
+      },
+    });
+  }
+
+  unassignFromMe(device: Device): void {
+    if (!this.currentUser) {
+      this.errorMessage = 'You must be logged in.';
+      return;
+    }
+
+    if (device.assignedUserId !== this.currentUser.id) {
+      this.errorMessage = 'You can only unassign your own device.';
+      return;
+    }
+
+    const updatedDevice: Device = {
+      ...device,
+      assignedUserId: null,
+    };
+
+    this.deviceService.updateDevice(device.id, updatedDevice).subscribe({
+      next: () => {
+        this.errorMessage = '';
+        this.loadDevices();
+      },
+      error: (error) => {
+        console.error('Unassign device error:', error);
+        this.errorMessage = 'Failed to unassign device.';
       },
     });
   }

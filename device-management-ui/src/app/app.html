@@ -1,4 +1,13 @@
 <div class="app-container">
   <h1>Device Management System</h1>
-  <app-device-list></app-device-list>
+
+  <nav>
+    <a routerLink="/register">Register</a> |
+    <a routerLink="/login">Login</a> |
+    <a routerLink="/devices">Devices</a>
+  </nav>
+
+  <hr />
+
+  <router-outlet></router-outlet>
 </div>

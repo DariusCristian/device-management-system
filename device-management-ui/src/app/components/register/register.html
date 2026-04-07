@@ -1,0 +1,21 @@
+<h2>Register</h2>
+
+<div class="auth-form">
+  <input [(ngModel)]="formData.name" placeholder="Name" />
+  <input [(ngModel)]="formData.role" placeholder="Role" />
+  <input [(ngModel)]="formData.location" placeholder="Location" />
+  <input [(ngModel)]="formData.email" placeholder="Email" type="email" />
+  <input [(ngModel)]="formData.password" placeholder="Password" type="password" />
+
+  <button type="button" (click)="register()">Register</button>
+
+  <p><a routerLink="/login">Already have an account? Login</a></p>
+
+  @if (message) {
+    <p>{{ message }}</p>
+  }
+
+  @if (errorMessage) {
+    <p>{{ errorMessage }}</p>
+  }
+</div>

@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  padding: 1rem;
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 400px;
+  padding: 1rem;
+  border: 1px solid #dcdcdc;
+  background-color: #f9f9f9;
+}
+
+.auth-form input,
+.auth-form button {
+  padding: 0.75rem;
+  font: inherit;
+}
+
+.auth-form button {
+  width: fit-content;
+  cursor: pointer;
+}
