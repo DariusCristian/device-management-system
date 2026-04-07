@@ -6,6 +6,7 @@ import { Device, DeviceService } from '../../services/device';
 
 @Component({
   selector: 'app-device-list',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './device-list.html',
   styleUrl: './device-list.css',
@@ -262,5 +263,52 @@ export class DeviceList implements OnInit {
         this.errorMessage = 'Failed to unassign device.';
       },
     });
+  }
+  generateDescription(): void {
+    const payload = {
+      name: this.newDevice.name,
+      manufacturer: this.newDevice.manufacturer,
+      type: this.newDevice.type,
+      operatingSystem: this.newDevice.operatingSystem,
+      osVersion: this.newDevice.osVersion,
+      processor: this.newDevice.processor,
+      ramAmount: this.newDevice.ramAmount,
+    };
+
+    if (
+      !payload.name.trim() ||
+      !payload.manufacturer.trim() ||
+      !payload.type.trim() ||
+      !payload.operatingSystem.trim() ||
+      !payload.osVersion.trim() ||
+      !payload.processor.trim() ||
+      payload.ramAmount <= 0
+    ) {
+      this.errorMessage = 'Fill in all technical fields before generating a description.';
+      return;
+    }
+
+    fetch('http://localhost:5125/api/Ai/generate-description', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || 'Failed to generate description.');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        this.newDevice.description = data.description;
+        this.errorMessage = '';
+      })
+      .catch((error) => {
+        console.error('Generate description error:', error);
+        this.errorMessage = 'Failed to generate description.';
+      });
   }
 }

@@ -15,6 +15,7 @@
   <input [(ngModel)]="newDevice.ramAmount" type="number" placeholder="RAM Amount" />
   <input [(ngModel)]="newDevice.assignedUserId" type="number" placeholder="Assigned User Id" />
   <textarea [(ngModel)]="newDevice.description" placeholder="Description"></textarea>
+  <button type="button" (click)="generateDescription()">Generate Description</button>
 
   <button (click)="isEditMode ? updateDevice() : createDevice()">
     {{ isEditMode ? 'Update Device' : 'Create Device' }}
