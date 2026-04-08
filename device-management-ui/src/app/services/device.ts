@@ -17,7 +17,7 @@ export interface Device {
   operatingSystem: string;
   osVersion: string;
   processor: string;
-  ramAmount: number;
+  ramAmount: number | null;
   description: string;
   assignedUserId?: number | null;
   assignedUser?: AssignedUser | null;

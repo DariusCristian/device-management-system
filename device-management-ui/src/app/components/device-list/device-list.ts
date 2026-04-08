@@ -4,6 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Device, DeviceService } from '../../services/device';
 
+type CurrentUser = {
+  id: number;
+  name: string;
+  email?: string;
+};
+
 @Component({
   selector: 'app-device-list',
   standalone: true,
@@ -17,25 +23,16 @@ export class DeviceList implements OnInit {
 
   devices: Device[] = [];
   isLoading = false;
+  isGeneratingDescription = false;
+  isSavingDevice = false;
   errorMessage = '';
   selectedDevice: Device | null = null;
   isEditMode = false;
-  currentUser: any = null;
+  currentUser: CurrentUser | null = null;
   searchQuery = '';
   isSearchMode = false;
 
-  newDevice: Device = {
-    id: 0,
-    name: '',
-    manufacturer: '',
-    type: '',
-    operatingSystem: '',
-    osVersion: '',
-    processor: '',
-    ramAmount: 0,
-    description: '',
-    assignedUserId: null,
-  };
+  newDevice: Device = this.createEmptyDevice();
 
   ngOnInit(): void {
     const savedUser = localStorage.getItem('currentUser');
@@ -45,8 +42,37 @@ export class DeviceList implements OnInit {
       return;
     }
 
-    this.currentUser = JSON.parse(savedUser);
+    this.currentUser = JSON.parse(savedUser) as CurrentUser;
     this.loadDevices();
+  }
+
+  private createEmptyDevice(): Device {
+    return {
+      id: 0,
+      name: '',
+      manufacturer: '',
+      type: '',
+      operatingSystem: '',
+      osVersion: '',
+      processor: '',
+      ramAmount: null,
+      description: '',
+      assignedUserId: null,
+    };
+  }
+
+  private hasInvalidDeviceFields(device: Device): boolean {
+    return (
+      !device.name.trim() ||
+      !device.manufacturer.trim() ||
+      !device.type.trim() ||
+      !device.operatingSystem.trim() ||
+      !device.osVersion.trim() ||
+      !device.processor.trim() ||
+      !device.description.trim() ||
+      !device.ramAmount ||
+      device.ramAmount <= 0
+    );
   }
 
   loadDevices(): void {
@@ -81,16 +107,7 @@ export class DeviceList implements OnInit {
   }
 
   createDevice(): void {
-    if (
-      !this.newDevice.name.trim() ||
-      !this.newDevice.manufacturer.trim() ||
-      !this.newDevice.type.trim() ||
-      !this.newDevice.operatingSystem.trim() ||
-      !this.newDevice.osVersion.trim() ||
-      !this.newDevice.processor.trim() ||
-      !this.newDevice.description.trim() ||
-      this.newDevice.ramAmount <= 0
-    ) {
+    if (this.hasInvalidDeviceFields(this.newDevice)) {
       this.errorMessage = 'All fields are required and RAM must be greater than 0.';
       return;
     }
@@ -106,86 +123,67 @@ export class DeviceList implements OnInit {
       return;
     }
 
-    this.deviceService.createDevice(this.newDevice).subscribe({
-      next: () => {
-        this.errorMessage = '';
-        this.newDevice = {
-          id: 0,
-          name: '',
-          manufacturer: '',
-          type: '',
-          operatingSystem: '',
-          osVersion: '',
-          processor: '',
-          ramAmount: 0,
-          description: '',
-          assignedUserId: null,
-        };
-        this.loadDevices();
-      },
-      error: (error) => {
-        console.error('Create device error:', error);
-        this.errorMessage = 'Failed to create device.';
-      },
-    });
+    this.isSavingDevice = true;
+    this.errorMessage = '';
+
+    this.deviceService
+      .createDevice(this.newDevice)
+      .pipe(
+        finalize(() => {
+          this.isSavingDevice = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.errorMessage = '';
+          this.newDevice = this.createEmptyDevice();
+          this.loadDevices();
+        },
+        error: (error) => {
+          console.error('Create device error:', error);
+          this.errorMessage = 'Failed to create device.';
+        },
+      });
   }
 
   updateDevice(): void {
-    if (
-      !this.newDevice.name.trim() ||
-      !this.newDevice.manufacturer.trim() ||
-      !this.newDevice.type.trim() ||
-      !this.newDevice.operatingSystem.trim() ||
-      !this.newDevice.osVersion.trim() ||
-      !this.newDevice.processor.trim() ||
-      !this.newDevice.description.trim() ||
-      this.newDevice.ramAmount <= 0
-    ) {
+    if (this.hasInvalidDeviceFields(this.newDevice)) {
       this.errorMessage = 'All fields are required and RAM must be greater than 0.';
       return;
     }
 
-    this.deviceService.updateDevice(this.newDevice.id, this.newDevice).subscribe({
-      next: () => {
-        this.errorMessage = '';
-        this.selectedDevice = null;
-        this.isEditMode = false;
-        this.newDevice = {
-          id: 0,
-          name: '',
-          manufacturer: '',
-          type: '',
-          operatingSystem: '',
-          osVersion: '',
-          processor: '',
-          ramAmount: 0,
-          description: '',
-          assignedUserId: null,
-        };
-        this.loadDevices();
-      },
-      error: (error) => {
-        console.error('Update device error:', error);
-        this.errorMessage = 'Failed to update device.';
-      },
-    });
+    this.isSavingDevice = true;
+    this.errorMessage = '';
+
+    this.deviceService
+      .updateDevice(this.newDevice.id, this.newDevice)
+      .pipe(
+        finalize(() => {
+          this.isSavingDevice = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.errorMessage = '';
+          this.selectedDevice = null;
+          this.isEditMode = false;
+          this.newDevice = this.createEmptyDevice();
+          this.loadDevices();
+        },
+        error: (error) => {
+          console.error('Update device error:', error);
+          this.errorMessage = 'Failed to update device.';
+        },
+      });
   }
+
   cancelEdit(): void {
     this.isEditMode = false;
     this.selectedDevice = null;
     this.errorMessage = '';
-    this.newDevice = {
-      id: 0,
-      name: '',
-      manufacturer: '',
-      type: '',
-      operatingSystem: '',
-      osVersion: '',
-      processor: '',
-      ramAmount: 0,
-      description: '',
-      assignedUserId: null,
-    };
+    this.newDevice = this.createEmptyDevice();
   }
 
   deleteDevice(id: number): void {
@@ -203,6 +201,7 @@ export class DeviceList implements OnInit {
       },
     });
   }
+
   isAssignedToCurrentUser(device: Device): boolean {
     return !!this.currentUser && device.assignedUserId === this.currentUser.id;
   }
@@ -266,7 +265,11 @@ export class DeviceList implements OnInit {
       },
     });
   }
+
   generateDescription(): void {
+    this.errorMessage = '';
+    this.isGeneratingDescription = true;
+
     const payload = {
       name: this.newDevice.name,
       manufacturer: this.newDevice.manufacturer,
@@ -284,9 +287,11 @@ export class DeviceList implements OnInit {
       !payload.operatingSystem.trim() ||
       !payload.osVersion.trim() ||
       !payload.processor.trim() ||
+      !payload.ramAmount ||
       payload.ramAmount <= 0
     ) {
       this.errorMessage = 'Fill in all technical fields before generating a description.';
+      this.isGeneratingDescription = false;
       return;
     }
 
@@ -307,10 +312,14 @@ export class DeviceList implements OnInit {
       .then((data) => {
         this.newDevice.description = data.description;
         this.errorMessage = '';
+        this.isGeneratingDescription = false;
+        this.cdr.detectChanges();
       })
       .catch((error) => {
         console.error('Generate description error:', error);
-        this.errorMessage = 'Failed to generate description.';
+        this.errorMessage = error?.message || 'Failed to generate description.';
+        this.isGeneratingDescription = false;
+        this.cdr.detectChanges();
       });
   }
 
@@ -334,7 +343,8 @@ export class DeviceList implements OnInit {
     this.errorMessage = '';
     this.isSearchMode = true;
 
-    this.deviceService.searchDevices(query)
+    this.deviceService
+      .searchDevices(query)
       .pipe(
         finalize(() => {
           this.isLoading = false;

@@ -1,26 +1,38 @@
 <h2>Devices</h2>
+
 @if (currentUser) {
-  <p><strong>Logged in as:</strong> {{ currentUser.name }} (ID: {{ currentUser.id }})</p>
+  <p class="status-text"><strong>Logged in as:</strong> {{ currentUser.name }} (ID: {{ currentUser.id }})</p>
 }
 
-<div class="device-form">
+<div class="search-card">
   <h3>Search Devices</h3>
-  <input
-    [(ngModel)]="searchQuery"
-    (ngModelChange)="onSearchInputChange()"
-    placeholder="Search by name, manufacturer, RAM, processor"
-  />
+  <p>Search by name, manufacturer, RAM, or processor.</p>
 
-  <button type="button" (click)="searchDevices()">Search</button>
-  <button
-    type="button"
-    (click)="searchQuery = ''; isSearchMode = false; loadDevices()">
-    Clear
-  </button>
+  <div class="search-row">
+    <input
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearchInputChange()"
+      placeholder="Search by name, manufacturer, RAM, processor"
+    />
+    <button
+      type="button"
+      class="button-primary"
+      (click)="searchDevices()"
+      [disabled]="isLoading || isGeneratingDescription || isSavingDevice">
+      {{ isLoading && isSearchMode ? 'Searching...' : 'Search' }}
+    </button>
+    <button
+      type="button"
+      class="button-secondary"
+      (click)="searchQuery = ''; isSearchMode = false; loadDevices()"
+      [disabled]="isLoading || isGeneratingDescription || isSavingDevice">
+      Clear
+    </button>
+  </div>
 </div>
 
 <div class="device-form">
-  <h3>{{ isEditMode ? 'Edit Device' : 'Create Device' }}</h3>
+  <h3 class="full-width">{{ isEditMode ? 'Edit Device' : 'Create Device' }}</h3>
 
   <input [(ngModel)]="newDevice.name" placeholder="Name" />
   <input [(ngModel)]="newDevice.manufacturer" placeholder="Manufacturer" />
@@ -29,28 +41,51 @@
   <input [(ngModel)]="newDevice.osVersion" placeholder="OS Version" />
   <input [(ngModel)]="newDevice.processor" placeholder="Processor" />
   <input [(ngModel)]="newDevice.ramAmount" type="number" placeholder="RAM Amount" />
-  <input [(ngModel)]="newDevice.assignedUserId" type="number" placeholder="Assigned User Id" />
-  <textarea [(ngModel)]="newDevice.description" placeholder="Description"></textarea>
-  <button type="button" (click)="generateDescription()">Generate Description</button>
 
-  <button (click)="isEditMode ? updateDevice() : createDevice()">
-    {{ isEditMode ? 'Update Device' : 'Create Device' }}
-  </button>
-  @if (isEditMode) {
-    <button type="button" (click)="cancelEdit()">Cancel Edit</button>
-  }
+  <textarea
+    class="full-width"
+    [(ngModel)]="newDevice.description"
+    placeholder="Description"></textarea>
+
+  <div class="button-row">
+    <button
+      type="button"
+      class="button-secondary"
+      (click)="generateDescription()"
+      [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+      {{ isGeneratingDescription ? 'Generating...' : 'Generate Description' }}
+    </button>
+
+    <button
+      type="button"
+      class="button-primary"
+      (click)="isEditMode ? updateDevice() : createDevice()"
+      [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+      {{ isSavingDevice ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Device' : 'Create Device') }}
+    </button>
+
+    @if (isEditMode) {
+      <button
+        type="button"
+        class="button-secondary"
+        (click)="cancelEdit()"
+        [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+        Cancel Edit
+      </button>
+    }
+  </div>
 </div>
 
 @if (isLoading) {
-  <p>Loading devices...</p>
+  <p class="status-text">Loading devices...</p>
 }
 
 @if (errorMessage) {
-  <p>{{ errorMessage }}</p>
+  <p class="error-text">{{ errorMessage }}</p>
 }
 
 @if (!isLoading && !errorMessage && devices.length === 0) {
-  <p>No devices found.</p>
+  <p class="status-text">No devices found.</p>
 }
 
 @if (!isLoading && devices.length > 0) {
@@ -75,24 +110,37 @@
           <td>{{ device.operatingSystem }} {{ device.osVersion }}</td>
           <td>{{ device.ramAmount }} GB</td>
           <td>{{ device.assignedUser ? device.assignedUser.name + ' (ID: ' + device.assignedUser.id + ')' : (device.assignedUserId ? 'User #' + device.assignedUserId : '-') }}</td>
-          <td>
-            @if (canAssignToCurrentUser(device)) {
-              <button type="button" (click)="assignToMe(device); $event.stopPropagation()">
-                Assign to Me
-              </button>
-            }
+          <td class="actions-cell">
+            <div class="actions-group">
+              @if (canAssignToCurrentUser(device)) {
+                <button
+                  type="button"
+                  class="button-success"
+                  (click)="assignToMe(device); $event.stopPropagation()"
+                  [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+                  Assign to Me
+                </button>
+              }
 
-            @if (isAssignedToCurrentUser(device)) {
-              <button type="button" (click)="unassignFromMe(device); $event.stopPropagation()">
-                Unassign
-              </button>
-            }
+              @if (isAssignedToCurrentUser(device)) {
+                <button
+                  type="button"
+                  class="button-secondary"
+                  (click)="unassignFromMe(device); $event.stopPropagation()"
+                  [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+                  Unassign
+                </button>
+              }
 
-            <button type="button" (click)="deleteDevice(device.id); $event.stopPropagation()">
-              Delete
-            </button>
+              <button
+                type="button"
+                class="button-danger"
+                (click)="deleteDevice(device.id); $event.stopPropagation()"
+                [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+                Delete
+              </button>
+            </div>
           </td>
-
         </tr>
       }
     </tbody>
@@ -109,6 +157,7 @@
       <p><strong>Processor:</strong> {{ selectedDevice.processor }}</p>
       <p><strong>RAM:</strong> {{ selectedDevice.ramAmount }} GB</p>
       <p><strong>Description:</strong> {{ selectedDevice.description }}</p>
-      <p><strong>Assigned User:</strong> {{ selectedDevice.assignedUser ? selectedDevice.assignedUser.name + ' (ID: ' + selectedDevice.assignedUser.id + ')' : (selectedDevice.assignedUserId ? 'User #' + selectedDevice.assignedUserId : '-') }}</p>    </div>
+      <p><strong>Assigned User:</strong> {{ selectedDevice.assignedUser ? selectedDevice.assignedUser.name + ' (ID: ' + selectedDevice.assignedUser.id + ')' : (selectedDevice.assignedUserId ? 'User #' + selectedDevice.assignedUserId : '-') }}</p>
+    </div>
   }
 }
