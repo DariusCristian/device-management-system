@@ -21,6 +21,8 @@ export class DeviceList implements OnInit {
   selectedDevice: Device | null = null;
   isEditMode = false;
   currentUser: any = null;
+  searchQuery = '';
+  isSearchMode = false;
 
   newDevice: Device = {
     id: 0,
@@ -309,6 +311,46 @@ export class DeviceList implements OnInit {
       .catch((error) => {
         console.error('Generate description error:', error);
         this.errorMessage = 'Failed to generate description.';
+      });
+  }
+
+  onSearchInputChange(): void {
+    if (!this.searchQuery.trim()) {
+      this.isSearchMode = false;
+      this.loadDevices();
+    }
+  }
+
+  searchDevices(): void {
+    const query = this.searchQuery.trim();
+
+    if (!query) {
+      this.isSearchMode = false;
+      this.loadDevices();
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.isSearchMode = true;
+
+    this.deviceService.searchDevices(query)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (devices) => {
+          this.devices = devices;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Device search error:', error);
+          this.errorMessage = 'Failed to search devices.';
+          this.cdr.detectChanges();
+        },
       });
   }
 }

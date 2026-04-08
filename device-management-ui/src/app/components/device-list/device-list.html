@@ -4,6 +4,22 @@
 }
 
 <div class="device-form">
+  <h3>Search Devices</h3>
+  <input
+    [(ngModel)]="searchQuery"
+    (ngModelChange)="onSearchInputChange()"
+    placeholder="Search by name, manufacturer, RAM, processor"
+  />
+
+  <button type="button" (click)="searchDevices()">Search</button>
+  <button
+    type="button"
+    (click)="searchQuery = ''; isSearchMode = false; loadDevices()">
+    Clear
+  </button>
+</div>
+
+<div class="device-form">
   <h3>{{ isEditMode ? 'Edit Device' : 'Create Device' }}</h3>
 
   <input [(ngModel)]="newDevice.name" placeholder="Name" />

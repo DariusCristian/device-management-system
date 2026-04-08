@@ -50,4 +50,8 @@ export class DeviceService {
   deleteDevice(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  searchDevices(query: string): Observable<Device[]> {
+    return this.http.get<Device[]>(`${this.apiUrl}/search?query=${encodeURIComponent(query)}`);
+  }
 }

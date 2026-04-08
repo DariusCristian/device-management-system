@@ -1,3 +1,4 @@
+using System.Text;
 using DeviceManagement.Api.Data;
 using DeviceManagement.Api.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,47 @@ public class DevicesController : ControllerBase
     public async Task<ActionResult<IEnumerable<Device>>> GetAll()
     {
         var devices = await _context.Devices
-            .Include(d=>d.AssignedUser)
+            .Include(d => d.AssignedUser)
             .ToListAsync();
         return Ok(devices);
     }
-    
+
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<Device>>> Search([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return Ok(new List<Device>());
+        }
+
+        var normalizedQuery = NormalizeText(query);
+        var queryTokens = Tokenize(normalizedQuery);
+
+        if (queryTokens.Count == 0)
+        {
+            return Ok(new List<Device>());
+        }
+
+        var devices = await _context.Devices
+            .Include(d => d.AssignedUser)
+            .ToListAsync();
+
+        var rankedDevices = devices
+            .Select(device => new
+            {
+                Device = device,
+                Score = CalculateScore(device, queryTokens)
+            })
+            .Where(x => x.Score > 0)
+            .OrderByDescending(x => x.Score)
+            .ThenBy(x => x.Device.Name)
+            .ThenBy(x => x.Device.Id)
+            .Select(x => x.Device)
+            .ToList();
+
+        return Ok(rankedDevices);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Device>> GetById(int id)
     {
@@ -37,7 +74,7 @@ public class DevicesController : ControllerBase
 
         return Ok(device);
     }
-    
+
     [HttpPost]
     public async Task<ActionResult<Device>> Create(Device device)
     {
@@ -58,7 +95,7 @@ public class DevicesController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = device.Id }, device);
     }
-    
+
     [HttpPut("{id:int}")]
     public async Task<ActionResult> Update(int id, Device updatedDevice)
     {
@@ -90,12 +127,12 @@ public class DevicesController : ControllerBase
         device.RamAmount = updatedDevice.RamAmount;
         device.Description = updatedDevice.Description;
         device.AssignedUserId = updatedDevice.AssignedUserId;
-        
+
         await _context.SaveChangesAsync();
 
         return NoContent();
     }
-    
+
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> Delete(int id)
     {
@@ -108,5 +145,76 @@ public class DevicesController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private static int CalculateScore(Device device, List<string> queryTokens)
+    {
+        var score = 0;
+
+        var normalizedName = NormalizeText(device.Name);
+        var normalizedManufacturer = NormalizeText(device.Manufacturer);
+        var normalizedProcessor = NormalizeText(device.Processor);
+        var normalizedRam = NormalizeText($"{device.RamAmount}gb {device.RamAmount} gb {device.RamAmount}");
+
+        var nameTokens = Tokenize(normalizedName);
+        var manufacturerTokens = Tokenize(normalizedManufacturer);
+        var processorTokens = Tokenize(normalizedProcessor);
+        var ramTokens = Tokenize(normalizedRam);
+
+        foreach (var token in queryTokens)
+        {
+            if (nameTokens.Contains(token))
+                score += 10;
+            else if (normalizedName.Contains(token))
+                score += 6;
+
+            if (manufacturerTokens.Contains(token))
+                score += 7;
+            else if (normalizedManufacturer.Contains(token))
+                score += 4;
+
+            if (processorTokens.Contains(token))
+                score += 5;
+            else if (normalizedProcessor.Contains(token))
+                score += 3;
+
+            if (ramTokens.Contains(token))
+                score += 4;
+            else if (normalizedRam.Contains(token))
+                score += 2;
+        }
+
+        return score;
+    }
+
+    private static string NormalizeText(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return string.Empty;
+
+        var builder = new StringBuilder();
+
+        foreach (var ch in input.ToLowerInvariant())
+        {
+            if (char.IsLetterOrDigit(ch))
+            {
+                builder.Append(ch);
+            }
+            else
+            {
+                builder.Append(' ');
+            }
+        }
+
+        return string.Join(' ', builder.ToString()
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    private static List<string> Tokenize(string input)
+    {
+        return input
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Distinct()
+            .ToList();
     }
 }
