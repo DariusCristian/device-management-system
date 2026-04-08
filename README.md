@@ -46,7 +46,7 @@ This project was developed in multiple phases and includes:
 ### Phase 4 – AI Integration
 - Generate human-readable device descriptions from technical specifications using Gemini AI
 
-### Bonus Phase – Search
+### Phase 5 – Search
 - Free-text device search
 - Search considers: Name, Manufacturer, RAM, Processor
 - Case-insensitive and token-based normalization
