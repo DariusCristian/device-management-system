@@ -1,0 +1,17 @@
+<div class="app-container">
+  <h1>Device Management System</h1>
+
+  <nav>
+    <a routerLink="/register">Register</a>
+    <a routerLink="/login">Login</a>
+    <a routerLink="/devices">Devices</a>
+
+    @if (isLoggedIn()) {
+      <button type="button" (click)="logout()">Logout</button>
+    }
+  </nav>
+
+  <hr />
+
+  <router-outlet></router-outlet>
+</div>

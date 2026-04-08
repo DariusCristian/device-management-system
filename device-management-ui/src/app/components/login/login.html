@@ -1,0 +1,22 @@
+<div class="auth-page">
+  <h2>Login</h2>
+
+  <div class="auth-form">
+    <input [(ngModel)]="formData.email" placeholder="Email" type="email" />
+    <input [(ngModel)]="formData.password" placeholder="Password" type="password" />
+
+    <button type="button" (click)="login()">Login</button>
+
+    <p class="auth-link">
+      Don't have an account? <a routerLink="/register">Register</a>
+    </p>
+
+    @if (message) {
+      <p class="success-text">{{ message }}</p>
+    }
+
+    @if (errorMessage) {
+      <p class="error-text">{{ errorMessage }}</p>
+    }
+  </div>
+</div>

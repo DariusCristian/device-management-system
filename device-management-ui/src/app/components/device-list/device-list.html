@@ -1,0 +1,163 @@
+<h2>Devices</h2>
+
+@if (currentUser) {
+  <p class="status-text"><strong>Logged in as:</strong> {{ currentUser.name }} (ID: {{ currentUser.id }})</p>
+}
+
+<div class="search-card">
+  <h3>Search Devices</h3>
+  <p>Search by name, manufacturer, RAM, or processor.</p>
+
+  <div class="search-row">
+    <input
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearchInputChange()"
+      placeholder="Search by name, manufacturer, RAM, processor"
+    />
+    <button
+      type="button"
+      class="button-primary"
+      (click)="searchDevices()"
+      [disabled]="isLoading || isGeneratingDescription || isSavingDevice">
+      {{ isLoading && isSearchMode ? 'Searching...' : 'Search' }}
+    </button>
+    <button
+      type="button"
+      class="button-secondary"
+      (click)="searchQuery = ''; isSearchMode = false; loadDevices()"
+      [disabled]="isLoading || isGeneratingDescription || isSavingDevice">
+      Clear
+    </button>
+  </div>
+</div>
+
+<div class="device-form">
+  <h3 class="full-width">{{ isEditMode ? 'Edit Device' : 'Create Device' }}</h3>
+
+  <input [(ngModel)]="newDevice.name" placeholder="Name" />
+  <input [(ngModel)]="newDevice.manufacturer" placeholder="Manufacturer" />
+  <input [(ngModel)]="newDevice.type" placeholder="Type" />
+  <input [(ngModel)]="newDevice.operatingSystem" placeholder="Operating System" />
+  <input [(ngModel)]="newDevice.osVersion" placeholder="OS Version" />
+  <input [(ngModel)]="newDevice.processor" placeholder="Processor" />
+  <input [(ngModel)]="newDevice.ramAmount" type="number" placeholder="RAM Amount" />
+
+  <textarea
+    class="full-width"
+    [(ngModel)]="newDevice.description"
+    placeholder="Description"></textarea>
+
+  <div class="button-row">
+    <button
+      type="button"
+      class="button-secondary"
+      (click)="generateDescription()"
+      [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+      {{ isGeneratingDescription ? 'Generating...' : 'Generate Description' }}
+    </button>
+
+    <button
+      type="button"
+      class="button-primary"
+      (click)="isEditMode ? updateDevice() : createDevice()"
+      [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+      {{ isSavingDevice ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Device' : 'Create Device') }}
+    </button>
+
+    @if (isEditMode) {
+      <button
+        type="button"
+        class="button-secondary"
+        (click)="cancelEdit()"
+        [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+        Cancel Edit
+      </button>
+    }
+  </div>
+</div>
+
+@if (isLoading) {
+  <p class="status-text">Loading devices...</p>
+}
+
+@if (errorMessage) {
+  <p class="error-text">{{ errorMessage }}</p>
+}
+
+@if (!isLoading && !errorMessage && devices.length === 0) {
+  <p class="status-text">No devices found.</p>
+}
+
+@if (!isLoading && devices.length > 0) {
+  <table>
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Manufacturer</th>
+      <th>Type</th>
+      <th>Operating System</th>
+      <th>RAM</th>
+      <th>Assigned User</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+      @for (device of devices; track device.id) {
+        <tr (click)="selectDevice(device)">
+          <td>{{ device.name }}</td>
+          <td>{{ device.manufacturer }}</td>
+          <td>{{ device.type }}</td>
+          <td>{{ device.operatingSystem }} {{ device.osVersion }}</td>
+          <td>{{ device.ramAmount }} GB</td>
+          <td>{{ device.assignedUser ? device.assignedUser.name + ' (ID: ' + device.assignedUser.id + ')' : (device.assignedUserId ? 'User #' + device.assignedUserId : '-') }}</td>
+          <td class="actions-cell">
+            <div class="actions-group">
+              @if (canAssignToCurrentUser(device)) {
+                <button
+                  type="button"
+                  class="button-success"
+                  (click)="assignToMe(device); $event.stopPropagation()"
+                  [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+                  Assign to Me
+                </button>
+              }
+
+              @if (isAssignedToCurrentUser(device)) {
+                <button
+                  type="button"
+                  class="button-secondary"
+                  (click)="unassignFromMe(device); $event.stopPropagation()"
+                  [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+                  Unassign
+                </button>
+              }
+
+              <button
+                type="button"
+                class="button-danger"
+                (click)="deleteDevice(device.id); $event.stopPropagation()"
+                [disabled]="isGeneratingDescription || isSavingDevice || isLoading">
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  @if (selectedDevice) {
+    <div class="device-details">
+      <h3>Device Details</h3>
+      <p><strong>Name:</strong> {{ selectedDevice.name }}</p>
+      <p><strong>Manufacturer:</strong> {{ selectedDevice.manufacturer }}</p>
+      <p><strong>Type:</strong> {{ selectedDevice.type }}</p>
+      <p><strong>Operating System:</strong> {{ selectedDevice.operatingSystem }}</p>
+      <p><strong>OS Version:</strong> {{ selectedDevice.osVersion }}</p>
+      <p><strong>Processor:</strong> {{ selectedDevice.processor }}</p>
+      <p><strong>RAM:</strong> {{ selectedDevice.ramAmount }} GB</p>
+      <p><strong>Description:</strong> {{ selectedDevice.description }}</p>
+      <p><strong>Assigned User:</strong> {{ selectedDevice.assignedUser ? selectedDevice.assignedUser.name + ' (ID: ' + selectedDevice.assignedUser.id + ')' : (selectedDevice.assignedUserId ? 'User #' + selectedDevice.assignedUserId : '-') }}</p>
+    </div>
+  }
+}

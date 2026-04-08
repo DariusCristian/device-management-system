@@ -1,0 +1,49 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f5f7fb;
+  color: #1f2937;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+h1 {
+  margin-bottom: 1rem;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+nav a,
+nav button {
+  font: inherit;
+  color: #1f2937;
+  text-decoration: none;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+nav a:hover,
+nav button:hover {
+  background-color: #eef2f7;
+  border-color: #b8c1cc;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #dbe1e8;
+  margin: 1rem 0 1.5rem;
+}
