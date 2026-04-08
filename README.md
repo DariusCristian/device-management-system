@@ -68,5 +68,5 @@ Make sure you have installed:
 ### 1. Clone the repository
 
 ```bash
-git clone <YOUR_GITHUB_REPO_URL>
+git clone <https://github.com/DariusCristian/device-management-system.git>
 cd device-management-system
